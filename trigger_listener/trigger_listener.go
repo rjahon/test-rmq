@@ -36,10 +36,7 @@ func main() {
 
 	id := helper.ParseId(os.Args) // TODO: fix parseId function
 
-	PublishMsg(id, ch, ctx)
-}
-
-func PublishMsg(id int, ch *amqp.Channel, ctx context.Context) {
+sw:
 	body, statusCode, err := helper.GetPhone(id)
 	helper.LogOnError(err, "Failed to get phone")
 
@@ -57,13 +54,16 @@ func PublishMsg(id int, ch *amqp.Channel, ctx context.Context) {
 				})
 			helper.FailOnError(err, "Failed to publish a message")
 		}
+
 	case http.StatusInternalServerError:
 		{
-			PublishMsg(id, ch, ctx)
+
+			goto sw
 		}
+
 	case http.StatusFound:
 		{
-			err = ch.PublishWithContext(ctx,
+			err := ch.PublishWithContext(ctx,
 				"logs_direct", // exchange
 				"info",        // routing key
 				false,         // mandatory
@@ -74,11 +74,21 @@ func PublishMsg(id int, ch *amqp.Channel, ctx context.Context) {
 				})
 			helper.FailOnError(err, "Failed to publish a message")
 		}
+
 	default:
-		{
-			helper.FailOnError(nil, "Unexpected response")
-		}
+		helper.FailOnError(nil, "Unexpected response")
 	}
 
 	log.Printf(" [x] Sent %s", string(body))
 }
+
+// func publishNotFound(body []byte, ch *amqp.Channel, ctx context.Context) {
+
+// }
+// func publishFound(body []byte, ch *amqp.Channel, ctx context.Context) {
+
+// }
+
+// func PublishMsg(id int, ch *amqp.Channel, ctx context.Context) {
+
+// }
