@@ -2,6 +2,7 @@ package V1
 
 import (
 	"log"
+	"math/rand"
 	"net/http"
 	"strconv"
 
@@ -9,9 +10,12 @@ import (
 )
 
 func (h *handlerV1) GetPhone(c *gin.Context) {
-	strId := c.Param("id")
+	if i := rand.Intn(4); i == 1 {
+		c.JSON(http.StatusInternalServerError, nil)
+		return
+	}
 
-	id, err := strconv.Atoi(strId)
+	id, err := strconv.Atoi(c.Param("id"))
 	if err != nil {
 		log.Println("Id format should be int")
 		return
@@ -19,10 +23,10 @@ func (h *handlerV1) GetPhone(c *gin.Context) {
 
 	resp, err := h.storage.Phone().Get(id)
 	if err != nil {
-		log.Printf("%s: %s", "Could not get phone from db", err)
+		log.Printf("Could not get phone from db: %s", err)
 		c.JSON(http.StatusNotFound, resp)
 		return
 	}
 
-	c.JSON(http.StatusOK, resp)
+	c.JSON(http.StatusFound, resp)
 }

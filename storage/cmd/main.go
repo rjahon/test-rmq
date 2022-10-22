@@ -23,7 +23,6 @@ import (
 func main() {
 	cfg := config.Load()
 
-	// Postgres connection
 	psqlUrl := fmt.Sprintf("host=%s port=%d user=%s password=%s dbname=%s sslmode=disable",
 		cfg.PostgresHost,
 		cfg.PostgresPort,
@@ -39,7 +38,6 @@ func main() {
 	defer psqlConn.Close()
 
 	strg := storage.NewStoragePg(psqlConn)
-
 	router := api.New(&api.RouterOptions{
 		Cfg:     &cfg,
 		Storage: strg,
@@ -50,7 +48,6 @@ func main() {
 		Handler: router,
 	}
 
-	log.Printf("HTTP Port: %s", apiServer.Addr)
 	go func() {
 		if err := apiServer.ListenAndServe(); err != nil && !errors.Is(err, http.ErrServerClosed) {
 			log.Fatal("could not start api server", err)

@@ -2,8 +2,10 @@ package main
 
 import (
 	"context"
+	"errors"
 	"log"
 	"net/http"
+	"strconv"
 	"time"
 
 	amqp "github.com/rabbitmq/amqp091-go"
@@ -30,7 +32,7 @@ func main() {
 	)
 	helper.FailOnError(err, "Failed to declare an exchange")
 
-	q, err := ch.QueueDeclare( //
+	q, err := ch.QueueDeclare(
 		"",    // name
 		false, // durable
 		false, // delete when unused
@@ -52,8 +54,7 @@ func main() {
 		nil)
 	helper.FailOnError(err, "Failed to bind a queue")
 
-	// id := rand.Intn(5)
-	msgs, err := ch.Consume( //
+	msgs, err := ch.Consume(
 		q.Name, // queue
 		"",     // consumer
 		true,   // auto-ack
@@ -69,12 +70,10 @@ func main() {
 
 	var forever chan struct{}
 
-	// var id int
 	go func() {
 		for d := range msgs {
-			// id, err = strconv.Atoi(string(d.Body))
 			id := string(d.Body)
-			// helper.FailOnError(err, "Failed to get id from message")
+
 			log.Printf(" [x] %s", id)
 			PublishMsg(id, ch, ctx)
 
@@ -100,41 +99,38 @@ func PublishMsg(id string, ch *amqp.Channel, ctx context.Context) {
 	helper.LogOnError(err, "Failed to get phone")
 
 	switch statusCode {
+	case http.StatusFound:
+		err := ch.PublishWithContext(ctx,
+			"logger", // exchange
+			"info",   // routing key
+			false,    // mandatory
+			false,    // immediate
+			amqp.Publishing{
+				ContentType: "text/plain",
+				Body:        body,
+			})
+		helper.LogOnError(err, "Failed to publish a message")
+
 	case http.StatusNotFound:
-		{
-			err = ch.PublishWithContext(ctx,
-				"logger", // exchange
-				"error",  // routing key
-				false,    // mandatory
-				false,    // immediate
-				amqp.Publishing{
-					ContentType: "text/plain",
-					Body:        body,
-				})
-			helper.LogOnError(err, "Failed to publish a message")
-		}
+		err = ch.PublishWithContext(ctx,
+			"logger", // exchange
+			"error",  // routing key
+			false,    // mandatory
+			false,    // immediate
+			amqp.Publishing{
+				ContentType: "text/plain",
+				Body:        body,
+			})
+		helper.LogOnError(err, "Failed to publish a message")
 
 	case http.StatusInternalServerError:
-		{
-			PublishMsg(id, ch, ctx)
-		}
-
-	case http.StatusFound:
-		{
-			err := ch.PublishWithContext(ctx,
-				"logger", // exchange
-				"info",   // routing key
-				false,    // mandatory
-				false,    // immediate
-				amqp.Publishing{
-					ContentType: "text/plain",
-					Body:        body,
-				})
-			helper.LogOnError(err, "Failed to publish a message")
-		}
+		PublishMsg(id, ch, ctx)
 
 	default:
-		helper.LogOnError(nil, "Unexpected response")
+		str := strconv.Itoa(statusCode)
+		err := errors.New(str)
+		helper.LogOnError(err, "Unexpected http response")
 	}
+
 	log.Printf(" [x] Sent %s", string(body))
 }
