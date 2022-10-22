@@ -34,7 +34,7 @@ func Load(filenames ...string) Config {
 	config.PostgresPort = cast.ToInt(getOrReturnDefault("POSTGRES_PORT", 5432))
 	config.PostgresUser = cast.ToString(getOrReturnDefault("POSTGRES_USER", "postgres"))
 	config.PostgresPassword = cast.ToString(getOrReturnDefault("POSTGRES_PASSWORD", "postgres"))
-	config.PostgresDatabase = cast.ToString(getOrReturnDefault("POSTGRES_DATABASE", "test"))
+	config.PostgresDatabase = cast.ToString(getOrReturnDefault("POSTGRES_DATABASE", "postgres"))
 
 	config.HttpPort = cast.ToString(getOrReturnDefault("HTTP_PORT", ":8008"))
 	return config

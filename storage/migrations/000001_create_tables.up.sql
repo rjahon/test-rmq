@@ -1,0 +1,4 @@
+CREATE TABLE IF NOT EXISTS phone (
+    id      INT PRIMARY KEY,
+    phone   VARCHAR NOT NULL
+);

@@ -3,8 +3,8 @@ package main
 import (
 	"context"
 	"log"
+	"math/rand"
 	"net/http"
-	"os"
 	"time"
 
 	amqp "github.com/rabbitmq/amqp091-go"
@@ -34,10 +34,10 @@ func main() {
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 
-	id := helper.ParseId(os.Args) // TODO: fix parseId function
+	// id := helper.ParseId(os.Args) // TODO: fix parseId function
 
 sw:
-	body, statusCode, err := helper.GetPhone(id)
+	body, statusCode, err := helper.GetPhone(rand.Intn(5))
 	helper.LogOnError(err, "Failed to get phone")
 
 	switch statusCode {
@@ -45,7 +45,7 @@ sw:
 		{
 			err = ch.PublishWithContext(ctx,
 				"logs_direct", // exchange
-				"info",        // routing key
+				"error",       // routing key
 				false,         // mandatory
 				false,         // immediate
 				amqp.Publishing{

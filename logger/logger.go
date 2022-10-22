@@ -2,7 +2,6 @@ package main
 
 import (
 	"log"
-	"os"
 
 	amqp "github.com/rabbitmq/amqp091-go"
 )
@@ -14,6 +13,13 @@ func failOnError(err error, msg string) {
 }
 
 func main() {
+	routing_keys := [4]string{
+		"error",
+		"info",
+		"debug",
+		"store",
+	}
+
 	conn, err := amqp.Dial("amqp://guest:guest@localhost:5672/")
 	failOnError(err, "Failed to connect to RabbitMQ")
 	defer conn.Close()
@@ -43,12 +49,12 @@ func main() {
 	)
 	failOnError(err, "Failed to declare a queue")
 
-	for _, s := range os.Args[1:] {
+	for _, routing_key := range routing_keys {
 		log.Printf("Binding queue %s to exchange %s with routing key %s",
-			q.Name, "logs_direct", s)
+			q.Name, "logs_direct", routing_key)
 		err = ch.QueueBind(
 			q.Name,        // queue name
-			s,             // routing key
+			routing_key,   // routing key
 			"logs_direct", // exchange
 			false,
 			nil)
