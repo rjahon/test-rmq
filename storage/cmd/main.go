@@ -50,6 +50,7 @@ func main() {
 		Handler: router,
 	}
 
+	log.Printf("HTTP Port: %s", apiServer.Addr)
 	go func() {
 		if err := apiServer.ListenAndServe(); err != nil && !errors.Is(err, http.ErrServerClosed) {
 			log.Fatal("could not start api server", err)

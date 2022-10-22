@@ -88,7 +88,6 @@ func main() {
 					Body:        []byte(id),
 				})
 			helper.FailOnError(err, "Failed to publish a message")
-
 		}
 	}()
 
@@ -97,7 +96,6 @@ func main() {
 }
 
 func PublishMsg(id string, ch *amqp.Channel, ctx context.Context) {
-
 	body, statusCode, err := helper.GetPhone(id)
 	helper.LogOnError(err, "Failed to get phone")
 
@@ -113,7 +111,7 @@ func PublishMsg(id string, ch *amqp.Channel, ctx context.Context) {
 					ContentType: "text/plain",
 					Body:        body,
 				})
-			helper.FailOnError(err, "Failed to publish a message")
+			helper.LogOnError(err, "Failed to publish a message")
 		}
 
 	case http.StatusInternalServerError:
@@ -132,7 +130,7 @@ func PublishMsg(id string, ch *amqp.Channel, ctx context.Context) {
 					ContentType: "text/plain",
 					Body:        body,
 				})
-			helper.FailOnError(err, "Failed to publish a message")
+			helper.LogOnError(err, "Failed to publish a message")
 		}
 
 	default:
