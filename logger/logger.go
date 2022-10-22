@@ -53,9 +53,9 @@ func main() {
 		log.Printf("Binding queue %s to exchange %s with routing key %s",
 			q.Name, "logs_direct", routing_key)
 		err = ch.QueueBind(
-			q.Name,        // queue name
-			routing_key,   // routing key
-			"logs_direct", // exchange
+			q.Name,      // queue name
+			routing_key, // routing key
+			"logger",    // exchange
 			false,
 			nil)
 		failOnError(err, "Failed to bind a queue")

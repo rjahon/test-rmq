@@ -3,13 +3,14 @@ package helper
 import (
 	"fmt"
 	"io"
+	"log"
 	"net/http"
-	"strconv"
 )
 
-func GetPhone(i int) ([]byte, int, error) {
-	id := strconv.Itoa(i)
+func GetPhone(id string) ([]byte, int, error) {
+	// i := strconv.Itoa(id)
 	url := fmt.Sprintf("https://127.0.0.1:8008/phone/%s", id)
+	log.Println("url: " + url)
 	resp, err := http.Get(url)
 	if err != nil {
 		return nil, resp.StatusCode, err
@@ -21,27 +22,3 @@ func GetPhone(i int) ([]byte, int, error) {
 	}
 	return body, resp.StatusCode, nil
 }
-
-// func ParseId(args []string) int {
-// 	var (
-// 		id  int
-// 		err error
-// 	)
-// 	id, err = strconv.Atoi(args[0])
-// 	if err != nil {
-// 		log.Printf("%s: %s", "Failed to parse id from args", err)
-// 		return rand.Intn(5)
-// 	}
-// 	return id
-// if len(args) > 1 || os.Args[2] == "" {
-// 	return 1
-// } else {
-// 	id, err = strconv.Atoi(args[0])
-// 	if err != nil {
-// 		log.Printf("%s: %s", "Failed to parse id from args", err)
-// 		return 1
-// 	}
-// }
-
-// return id
-// }

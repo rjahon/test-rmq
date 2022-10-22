@@ -9,9 +9,6 @@ import (
 )
 
 type Config struct {
-	// Environment string
-	// ServiceName string
-
 	PostgresHost     string
 	PostgresPort     int
 	PostgresUser     string
@@ -26,9 +23,6 @@ func Load(filenames ...string) Config {
 		fmt.Println("No .env file found")
 	}
 	config := Config{}
-
-	// config.Environment = cast.ToString(getOrReturnDefault("ENVIRONMENT", "develop"))
-	// config.ServiceName = cast.ToString(getOrReturnDefault("SERVICE_NAME", "storage"))
 
 	config.PostgresHost = cast.ToString(getOrReturnDefault("POSTGRES_HOST", "localhost"))
 	config.PostgresPort = cast.ToInt(getOrReturnDefault("POSTGRES_PORT", 5432))

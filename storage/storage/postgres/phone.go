@@ -1,10 +1,10 @@
 package postgres
 
 import (
-	"strconv"
+	"errors"
+	"math/rand"
 
 	"github.com/jmoiron/sqlx"
-	"github.com/rjahon/labs-rmq/storage/models"
 	"github.com/rjahon/labs-rmq/storage/storage/repo"
 )
 
@@ -18,20 +18,19 @@ func NewPhone(db *sqlx.DB) repo.PhoneI {
 	}
 }
 
-func (pr *phoneRepo) Get(id int) (*models.Phone, error) {
-	var (
-		resp   models.Phone
-		number string
-	)
+func (pr *phoneRepo) Get(id int) (*string, error) {
+	i := rand.Intn(4)
+	if i == 1 {
+		return nil, errors.New("server error")
+	}
+
+	var phone string
 
 	query := `SELECT phone FROM phone p WHERE p.id=$1`
-	err := pr.db.QueryRow(query, id).Scan(&number)
+	err := pr.db.QueryRow(query, id).Scan(&phone)
 	if err != nil {
 		return nil, err
 	}
-	resp.ID = strconv.Itoa(id)
-	resp.Phone = number
 
-	return &resp, nil
-
+	return &phone, nil
 }
